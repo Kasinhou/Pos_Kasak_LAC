@@ -8,6 +8,7 @@
 #include <unistd.h>
 #include <stdbool.h>
 
+//vstupne data od pouzivatela
 typedef struct InputData {
     char rows[4];
     char columns[4];
@@ -15,6 +16,7 @@ typedef struct InputData {
     char movement[4];
 } INPUT_DATA;
 
+//inicializacia vstupnych dat, priradenie
 void input_data_init(INPUT_DATA *input_data, const char *rows, const char *columns,
                      const char *numberOfAnts, const char *movement) {
 
@@ -31,14 +33,15 @@ void input_data_init(INPUT_DATA *input_data, const char *rows, const char *colum
     input_data->movement[sizeof(input_data->movement) - 1] = '\0';
 }
 
+//serializacia na spravny prenos dat
 void serialize_input_data(INPUT_DATA *data, char *serMess) {
     snprintf(serMess, 1024, "%s;%s;%s;%s;", data->rows, data->columns, data->numberOfAnts, data->movement);
 }
 
-//treba toolchain dat hore aj na serveri
+
 int main(int argc, char *argv[])
 {
-    //vytvorenie sveta so zadanymi rozmermi (definovat biele cierne mravcov - #O.)
+    //otazky
     char rows[4];
     char columns[4];
     printf("\n--------------------------------------Langton's ants----------------------------------------\n");
@@ -63,9 +66,8 @@ int main(int argc, char *argv[])
     //printf("%s, %s, %s, %s", rows, columns, numberOfAnts, movement);
 
 //---------------------------------------------------------------------------
-    //generovanie nahodnych ciernych poli
-    //rucne definovat cierne polia
 
+//vytvorenie socketov a ich spracovanie
     int sockfd, n;
     struct sockaddr_in serv_addr;
     struct hostent* server;
@@ -116,8 +118,9 @@ int main(int argc, char *argv[])
     input_data_init(&input_data, rows, columns, numberOfAnts, movement);
     //get_input_data(buffer);
     serialize_input_data(&input_data, buffer);
-    printf("%s je pocet riadkov", input_data.rows);
+    //printf("%s je pocet riadkov", input_data.rows);
 
+    //zapisanie na server
     n = write(sockfd, buffer, strlen(buffer));//+1
     if (n < 0)
     {
@@ -125,6 +128,7 @@ int main(int argc, char *argv[])
         return 5;
     }
 
+    //cyklus ohladom prijatia odpovede
     while (true) {
         char buf[2048];
         bzero(buf, 2048);
