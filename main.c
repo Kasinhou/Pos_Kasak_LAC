@@ -17,14 +17,7 @@ typedef struct InputData {
 
 void input_data_init(INPUT_DATA *input_data, const char *rows, const char *columns,
                      const char *numberOfAnts, const char *movement) {
-    /*input_data->rows = rows;
-    input_data->columns = columns;
-    input_data->numberOfAnts = numberOfAnts;
-    input_data->movement = movement;*/
-    /*sprintf(input_data->rows, (const char *) sizeof(input_data->rows), "%s", rows);
-    sprintf(input_data->columns, (const char *) sizeof(input_data->columns), "%s", columns);
-    sprintf(input_data->numberOfAnts, (const char *) sizeof(input_data->numberOfAnts), "%s", numberOfAnts);
-    sprintf(input_data->movement, (const char *) sizeof(input_data->movement), "%s", movement);*/
+
     strncpy(input_data->rows, rows, sizeof(input_data->rows) - 1);
     input_data->rows[sizeof(input_data->rows) - 1] = '\0';
 
@@ -124,37 +117,21 @@ int main(int argc, char *argv[])
     //get_input_data(buffer);
     serialize_input_data(&input_data, buffer);
     printf("%s je pocet riadkov", input_data.rows);
-    /*buffer[0] = 'd';
-    buffer[1] = 'h';
-    buffer[2] = 'o';
-    buffer[3] = 'j';*/
-    //int result = snprintf(buffer, strlen(buffer), "%c;%c;%c;%c;",
-       //                   rows, columns, numberOfAnts, movement);
 
-    /*if (result >= 0 && (size_t)result < strlen(buffer)) {
-        printf("\nSuccessfully serialized\n");
-    } else {
-
-        printf("\nFailed to serialize\n");
-    }*/
-    //fgets(buffer, 1023, stdin);
-
-    n = write(sockfd, buffer, strlen(buffer));
+    n = write(sockfd, buffer, strlen(buffer));//+1
     if (n < 0)
     {
         perror("Error writing to socket");
         return 5;
     }
 
-    bzero(buffer,1024);
-    n = read(sockfd, buffer, 1023);
-    if (n < 0)
-    {
-        perror("Error reading from socket");
-        return 6;
-    }
+    while (true) {
+        char buf[2048];
+        bzero(buf, 2048);
+        read(sockfd, buf, 2047);
 
-    printf("%s\n",buffer);
+        printf("%s\n", buf);
+    }
     close(sockfd);
 
     return 0;
